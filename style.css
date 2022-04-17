@@ -1,5 +1,11 @@
 body{
-    margin:0%
+    margin:0%;
+    
+}
+
+image{
+    position: absolute;
+    text-align: center;
 }
 
 h1{
@@ -14,7 +20,7 @@ table{
     height: 70%;
     border: 49px solid #462921;
     border-collapse:separate;
-    background-color: #b5915f;
+    
     margin :5% 10% 10% 10%
 }
 
@@ -32,18 +38,31 @@ td{
     
 }
 
+.black{
+    background-color:#725122;
+    
+}
+
+.white{
+    background-color: #b5915f;
+}
+
 td:hover{
     background-color: rgba(0, 0, 0, 0.171);
 }
 
-tr:nth-of-type(even) td:nth-of-type(even),tr:nth-of-type(odd) td:nth-of-type(odd) {
-    background:#441a03;
-}  
+/* tr:nth-of-type(even) td:nth-of-type(even),tr:nth-of-type(odd) td:nth-of-type(odd) {
+    background-color:#440303;
+}   */
 
 tr:nth-of-type(even) td:nth-of-type(even):hover{
-    background-color: #331301f8
+    background-color:#72512267
 }
 tr:nth-of-type(odd) td:nth-of-type(odd):hover{
-    background-color: #331301f8
+    background-color:#72512267
 
+}
+
+.onIt{
+    background: rgba(252, 151, 0, 0.966);
 }
