@@ -111,16 +111,22 @@ class Piece {
       //   const posibbleMoves = this.getPawnMoves();
       const posibbleMoves = [1,0];
       //console.log("hello" + possibleMoves);
-      for (let i = 0; i < posibbleMoves; i++) {
+      for (let i = 0; i < posibbleMoves.length; i++) {
           this.getRow()+=1;
        // posibbleMoves[i][0] += this.row;
         //posibbleMoves[i][1] += this.row;
-      }
-      
+      }   
     }
-    return this.getRow();
+    if(this.type==="rook"){
+        const possibleMoves=getRookMoves();
+    }
+    
+    return result;
   }
 
+  getRookMoves(){
+      return [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[2,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7]];
+  }
   getPawnMoves() {
     return [3];
   }
