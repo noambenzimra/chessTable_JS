@@ -1,91 +1,18 @@
-let clicked = false;
-
+//_________________________________________________________________global variables
 const BOARD_SIZE = 8;
 const WHITE_TYPE = "white";
 const DARK_TYPE = "dark";
+const PAWN = "pawn";
+const ROOK = "rook";
+const KNIGHT = "knight";
+const BISHOP = "bishop";
+const KING = "king";
+const QUEEN = "queen";
 
-function addImage(cell, type, name) {
-  const image = document.createElement("img");
-  image.src = "images/" + type + "/" + name + ".svg";
-  cell.appendChild(image);
-}
-
-function addImageByIndex(cell, type, index) {
-  if (index === 0 || index === 7) {
-    addImage(cell, type, "rook");
-  } else if (index === 1 || index === 6) {
-    addImage(cell, type, "knight");
-  } else if (index === 2 || index === 5) {
-    addImage(cell, type, "bishop");
-  } else if (index === 3) {
-    addImage(cell, type, "king");
-  } else if (index === 4) {
-    addImage(cell, type, "queen");
-  }
-}
-
-let selectedCell = undefined;
-
-// function search(selectedcell){
-//     let player=[]
-//     let td=document.getElementsByTagName("td")
-//     for(let i=0;i<8;i++){
-//     for(let j=0;j<8;j++){
-//         if(selectedcell===td[j]&&td.id==search1(selectedCell)){
-//          let id=td.col;
-//          let number=parseInt(id,10);
-//          let img=td.img;
-//           player.push(new Piece(i,j,"knight",WHITE_TYPE))
-//           return player;
-//           //return player;
-
-//         }
-
-//         }
-//     }
-// }
-
-// function search1(selectedcell){
-//     let player=[]
-//     let td=document.getElementsByTagName("td")
-
-//     for(let j=0;j<8;j++){
-//         if(selectedcell===td[j]){
-//           return td.id;
-//         }
-
-//         }
-
-// }
-function onCellClick(e) {
-  let td = document.getElementsByTagName("td");
-  //console.log(td[selectedCell])
-  if (selectedCell !== undefined) {
-    selectedCell.classList.remove("onIt");
-  }
-  selectedCell = e.currentTarget;
-  //console.log(selectedCell);
-  selectedCell.classList.add("onIt");
-  //let x=search(e.currentTarget);
-  // let player=search(selectedCell);
-  //console.log(player[0].getRow()+" "+player[0].getCol())
-  //  ((player[0].getCol())).classList.add('onIt')
-}
-
-// function rules(e){
-//     =e.currentTarget;
-//     if(Piece.type==="pawn")
-//     {
-//         table.rows[Piece.row+1].cells[Piece.col].classList.add('onIt');
-//     }
-
-// }
+let table;
+let tblBody;
 let pieces = [];
-
-// const obj1={
-//     1:"rook",2:"knight",3:"bishop",4:"queen",5:"king",6:"bishop",7:"knight",8:"rook"
-
-// }
+//___________________________________________________________________________________________________________Class Piece
 
 class Piece {
   constructor(row, col, type, player) {
@@ -95,71 +22,198 @@ class Piece {
     this.player = player;
   }
 
-  getPlayer() {
-    return this.player;
+  //   getPlayer() {
+  //     return this.player;
+  //   }
+
+  //   getRow() {
+  //     return this.row;
+  //   }
+  //   getCol() {
+  //     return this.col;
+  //   }
+  getPossibleMoves() {
+    // Get relative moves
+    let relativeMoves;
+    if (this.type === PAWN) {
+      relativeMoves = this.getPawnRelativeMoves();
+    } else if (this.type === ROOK) {
+      relativeMoves = this.getRookRelativeMoves();
+    } else if (this.type === KNIGHT) {
+      relativeMoves = this.getKnightRelativeMoves();
+    } else if (this.type === BISHOP) {
+      relativeMoves = this.getBishopRelativeMoves();
+    } else if (this.type === KING) {
+      //   console.log(this.getKingRelativeMoves());
+      relativeMoves = this.getKingRelativeMoves();
+    } else if (this.type === QUEEN) {
+      relativeMoves = this.getQueenRelativeMoves();
+    } else {
+      console.log("Unknown type", type);
+    }
+    console.log("relativeMoves", relativeMoves);
+
+    // Get absolute moves
+    let absoluteMoves = [];
+    for (let relativeMove of relativeMoves) {
+      const absoluteRow = this.row + relativeMove[0];
+      const absoluteCol = this.col + relativeMove[1]; //6+7
+      console.log(relativeMove[1]);
+      absoluteMoves.push([absoluteRow, absoluteCol]);
+    }
+    console.log("absoluteMoves", absoluteMoves);
+
+    // Get filtered absolute moves
+    let filteredMoves = [];
+    for (let absoluteMove of absoluteMoves) {
+      const absoluteRow = absoluteMove[0];
+      const absoluteCol = absoluteMove[1];
+      // console.log(absoluteCol);
+      if (
+        absoluteRow >= 0 &&
+        absoluteRow <= 7 &&
+        absoluteCol >= 0 &&
+        absoluteCol <= 7
+      ) {
+        filteredMoves.push(absoluteMove);
+      }
+    }
+    console.log("filteredMoves", filteredMoves);
+    return filteredMoves;
   }
 
-  getRow() {
-    return this.row;
+  //to do :make relative move absolute
+  //todo: filter out moves that are out of bounds
+
+  getPawnRelativeMoves() {
+    //to do give different answer to different colors
+    if (this.player == DARK_TYPE) {
+      return [[-1, 0]];
+    }
+    return [[1, 0]];
   }
-  getCol() {
-    return this.col;
-  }
-  getPossibleMoves() {
+
+  getRookRelativeMoves() {
     let result = [];
-    if (this.type === "pawn") {
-      //   const posibbleMoves = this.getPawnMoves();
-      const posibbleMoves = [1,0];
-      //console.log("hello" + possibleMoves);
-      for (let i = 0; i < posibbleMoves.length; i++) {
-          this.getRow()+=1;
-       // posibbleMoves[i][0] += this.row;
-        //posibbleMoves[i][1] += this.row;
-      }   
+    for (let i = 1; i < BOARD_SIZE; i++) {
+      result.push([i, 0]);
+      result.push([-i, 0]);
+      result.push([0, i]);
+      result.push([0, -i]);
     }
-    if(this.type==="rook"){
-        const possibleMoves=getRookMoves();
-    }
-    
     return result;
   }
 
-  getRookMoves(){
-      return [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[2,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7]];
-  }
-  getPawnMoves() {
-    return [3];
-  }
-}
-function getInitialBoard() {
-  let result = [];
-  result.push(new Piece(0, 0, "rook", WHITE_TYPE));
-  result.push(new Piece(0, 1, "knight", WHITE_TYPE));
-  result.push(new Piece(0, 2, "bishop", WHITE_TYPE));
-  result.push(new Piece(0, 3, "king", WHITE_TYPE));
-  result.push(new Piece(0, 4, "queen", WHITE_TYPE));
-  result.push(new Piece(0, 5, "bishop", WHITE_TYPE));
-  result.push(new Piece(0, 6, "knight", WHITE_TYPE));
-  result.push(new Piece(0, 7, "rook", WHITE_TYPE));
-  for (let i = 0; i < 8; i++) {
-    result.push(new Piece(1, i, "pawn", WHITE_TYPE));
+  getKnightRelativeMoves() {
+    let result = [];
+    // for (let i = 1; i < BOARD_SIZE; i++) {
+    result.push([2, +1]);
+    result.push([2, -1]);
+    result.push([-2, +1]);
+    result.push([-2, -1]);
+    return result;
+    // }
   }
 
-  result.push(new Piece(7, 0, "rook", DARK_TYPE));
-  result.push(new Piece(7, 1, "knight", DARK_TYPE));
-  result.push(new Piece(7, 2, "bishop", DARK_TYPE));
-  result.push(new Piece(7, 3, "king", DARK_TYPE));
-  result.push(new Piece(7, 4, "queen", DARK_TYPE));
-  result.push(new Piece(7, 5, "bishop", DARK_TYPE));
-  result.push(new Piece(7, 6, "knight", DARK_TYPE));
-  result.push(new Piece(7, 7, "rook", DARK_TYPE));
+  getBishopRelativeMoves() {
+    let result = [];
+    for (let i = 1; i < BOARD_SIZE; i++) {
+      result.push([i, i]);
+      result.push([i, -i]);
+      result.push([-i, -i]);
+      result.push([-i, i]);
+    }
+    return result;
+  }
+  getKingRelativeMoves() {
+    let result = [];
+    result.push([1, 0]);
+    result.push([-1, 0]);
+    result.push([0, -1]);
+    result.push([0, 1]);
+    return result;
+  }
+
+  getQueenRelativeMoves() {
+    let result = [];
+    for (let i = 1; i < BOARD_SIZE; i++) {
+      result.push([i, 0]);
+      result.push([-i, 0]);
+      result.push([0, i]);
+      result.push([0, -i]);
+      result.push([i, i]);
+      result.push([i, -i]);
+      result.push([-i, -i]);
+      result.push([-i, i]);
+    }
+    return result;
+  }
+}
+//____________________________________________________________________global function. like-addImage,addimageByIndex,onCellClick
+function addImage(cell, type, name) {
+  const image = document.createElement("img");
+  image.src = "images/" + type + "/" + name + ".svg";
+  cell.appendChild(image);
+}
+
+let selectedCell = undefined;
+
+function onCellClick(e, row, col) {
+  //clear previus selected move
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    for (let j = 0; j < BOARD_SIZE; j++) {
+      table.rows[i].cells[j].classList.remove("options");
+    }
+  }
+  //show possible moves
+  for (let piece of pieces) {
+    if (piece.row === row && piece.col === col) {
+      let possibleMoves = piece.getPossibleMoves();
+      for (let possibleMove of possibleMoves) {
+        console.log(possibleMove);
+        const cell = table.rows[possibleMove[0]].cells[possibleMove[1]];
+        cell.classList.add("options");
+      }
+    }
+  }
+
+  let td = document.getElementsByTagName("td");
+  //clear previus selected cell
+  if (selectedCell !== undefined) {
+    selectedCell.classList.remove("onIt");
+  }
+  //show selected cell
+  selectedCell = e.currentTarget;
+
+  selectedCell.classList.add("onIt");
+}
+//_____________________________________________________________________________________getInitialPieces
+function getInitialPieces() {
+  let result = [];
+
+  //addFirstRowPieces();
+  addFirstRowPieces(result, 0, WHITE_TYPE);
+  addFirstRowPieces(result, 7, DARK_TYPE);
   for (let i = 0; i < 8; i++) {
+    result.push(new Piece(1, i, "pawn", WHITE_TYPE));
     result.push(new Piece(6, i, "pawn", DARK_TYPE));
   }
   return result;
 }
+function addFirstRowPieces(result, row, player) {
+  result.push(new Piece(row, 0, "rook", player));
+  result.push(new Piece(row, 1, "knight", player));
+  result.push(new Piece(row, 2, "bishop", player));
+  result.push(new Piece(row, 3, "king", player));
+  result.push(new Piece(row, 4, "queen", player));
+  result.push(new Piece(row, 5, "bishop", player));
+  result.push(new Piece(row, 6, "knight", player));
+  result.push(new Piece(row, 7, "rook", player));
+}
 
-window.addEventListener("load", () => {
+//_____________________________________________________________create the board itself
+
+function createChessBoard() {
   let body = document.getElementsByTagName("body")[0];
 
   let h1 = document.createElement("h1");
@@ -167,10 +221,13 @@ window.addEventListener("load", () => {
   h1.appendChild(text2);
   body.appendChild(h1);
 
-  let table = document.createElement("table");
+  table = document.createElement("table");
 
-  let tblBody = document.createElement("tbody");
+  tblBody = document.createElement("tbody");
   let thead = document.createElement("thead");
+  table.appendChild(thead);
+  table.appendChild(tblBody);
+  body.appendChild(table);
 
   for (let i = 0; i < 8; i++) {
     let tr = document.createElement("tr");
@@ -191,51 +248,19 @@ window.addEventListener("load", () => {
         td.className = "white";
       }
 
-      //console.log(table.rows[Piece.row].cells[Piece.cell]);
-      //console.log("hello")
-
-      // if (i === 0) {
-      //     addImageByIndex(td, WHITE_TYPE, j);
-      //   } else if (i === 1) {
-      //     addImage(td, WHITE_TYPE, 'pawn');
-      //   } else if (i === 6) {
-      //     addImage(td, DARK_TYPE, 'pawn');
-      //   } else if (i === 7) {
-      //     addImageByIndex(td, DARK_TYPE, j);
-      //   }
-
-      td.addEventListener("click", onCellClick);
-      // td.addEventListener('click', rules)
-
-      // --------------------------------------------------------
-      //  td.addEventListener("click",() =>{
-      //  table=document.getElementsByTagName("table")[0];
-      //  let v;
-      //  table.addEventListener("click",(e)=>{
-      //  const target=e.target;
-      //  if(!target.closest("td"))
-      //  return
-      //   if(v)
-      //  {
-      //  v.classList.remove('onIt');
-      // v=undefined;
-      // }
-      //  target.classList.add('onIt');
-      //  v=target;
-      // })})
-      // /-------------------------------------------------------
-      // mikoum(tr,td,i,j);
+      //___________________________________________________________________________
+      td.addEventListener("click", (event) => onCellClick(event, i, j));
+      //___________________________________________________________________________
     }
     tblBody.appendChild(tr);
     thead.appendChild(th);
   }
-  table.appendChild(thead);
-  table.appendChild(tblBody);
-  body.appendChild(table);
+
   table.setAttribute("border", "4");
 
-  let pieces = getInitialBoard();
-  console.log(pieces[1].getPossibleMoves());
+  pieces = getInitialPieces();
+  // console.log(pieces);
+  // add images to the board
   for (let piece of pieces) {
     addImage(
       tblBody.rows[piece.row].cells[piece.col],
@@ -243,38 +268,5 @@ window.addEventListener("load", () => {
       piece.type
     );
   }
-
-  //   const x=[...document.getElementsByTagName("td")].forEach(td => td.addEventListener("click", e => e.target.classList.add ('onIt')));
-  // [...document.getElementsByTagName("td")].forEach(td => td.removeEventListener("click", e => e.target.classList.add ('onIt')));
-
-  // table.rows[i].cells[j].addEventListener("click",e => e.target.style.background= "#b88474");
-
-  //  })
-});
-
-//     tr=document.getElementsByTagName("tr");
-//     td = document.getElementsByTagName("td");
-
-//      if(!clicked){
-//     table.rows[i].cells[j].classList.add('onIt');
-//     clicked=true;
-//     console.log(x)
-//     }
-//     else{
-//         table.rows[x].cells[y].classList.remove('onIt');
-//         table.rows[i].cells[j].classList.add('onIt');
-//     }
-
-// }
-
-// function removeColor(i,j){
-//     table.rows[i].cells[j].classList.remove('onIt');
-// }
-
-//     let i=
-//     if(!clicked){
-//         return [...document.getElementsByTagName("td")].forEach(element => element.addEventListener("click", e => e.target.classList.add ('onIt')));
-//         clicked=true;
-
-//     }
-//     else if()
+}
+window.addEventListener("load", createChessBoard);

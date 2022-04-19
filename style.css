@@ -66,3 +66,7 @@ tr:nth-of-type(odd) td:nth-of-type(odd):hover{
 .onIt{
     background: rgba(252, 151, 0, 0.966);
 }
+
+.options{
+    background: rgba(245, 173, 65, 0.966);
+}
